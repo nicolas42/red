@@ -9,6 +9,20 @@ Red []
     hotkey for evaluation (b or enter)
     font size increase decrease
 
+
+
+    Goal: edit this file in the editor
+
+    *** Script Error: VIEW - face not linked to a window
+    *** Where: do
+    *** Stack: context do-events do-safe show cause-error 
+    == make object! [
+    win: make object! [
+        type: 'window
+        offset: 220x100
+    ...
+
+
 }
 
 win: view/flags/no-wait/tight layout [ 
@@ -43,15 +57,25 @@ do-resize: func [] [
     show c
 ]
 
+{
+focus-next: func [ e ] [
+    place: next find win/pane e/face 
+    if tail? place [ place: head place ] 
+    set-focus place/1 
+]
+}
+
 insert-event-func func [ f e ] [ 
     if e/type = 'resize [ do-resize ]
     if e/type = 'key [
-        mod: find e/flags 'command ; modifier key
+        command: find e/flags 'command
+        control: find e/flags 'control
 ;        probe e/face
         probe e/key
         probe e/flags
-        if all [ mod e/key = #"q" ] [ unview ] 
-        if all [ mod e/key = #"^M" ] [ b/text: doit e/face/text show b ]
+        if all [ command e/key = #"q" ] [ unview ] 
+        if all [ command e/key = #"^M" ] [ b/text: doit e/face/text show b ]
+        ; if all [ control e/key = #"^-" ] [  focus-next e ]
     ]
     return e 
 ]
